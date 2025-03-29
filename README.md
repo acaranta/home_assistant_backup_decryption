@@ -61,6 +61,7 @@ pip3 install -r requirements.txt
 ```
 docker build -t acaranta/home_assistant_backup_decryption .
 ```
+- Or use the image built from this repository : [acaranta/home_assistant_backup_decryption](https://hub.docker.com/r/acaranta/home_assistant_backup_decryption)
 - Then Run the image :
 ```
 docker run --rm -ti \
