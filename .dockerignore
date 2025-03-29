@@ -1,0 +1,6 @@
+input/**
+output/**
+*.tar
+*.tar.gz
+*emergency_kit*
+.venv/

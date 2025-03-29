@@ -1,0 +1,7 @@
+Automatic*tar
+*emergency_kit*
+*.swp
+input/**
+output/**
+tmp/**
+.venv
