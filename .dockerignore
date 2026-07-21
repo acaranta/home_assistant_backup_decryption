@@ -4,3 +4,8 @@ output/**
 *.tar.gz
 *emergency_kit*
 .venv/
+.git/
+__pycache__/
+.pytest_cache/
+tests/
+doc/

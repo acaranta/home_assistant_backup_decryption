@@ -40,20 +40,22 @@ cp home_assistant_backup_emergency_kit*txt ./input/
 ```
 
 ### Directly from your terminal
-- Get the this repository :
+This project uses [uv](https://docs.astral.sh/uv/) to manage its Python environment.
+Requires **Python 3.11+** (uv will fetch a suitable interpreter for you if needed).
+
+- Install uv, if you do not have it yet :
 ```
-https://github.com/acaranta/home_assistant_backup_decryption.git
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+- Get this repository :
+```
+git clone https://github.com/acaranta/home_assistant_backup_decryption.git
 cd home_assistant_backup_decryption
 ```
-- Install needed env/modules :
+- Run the script — uv creates the virtualenv and installs the locked dependencies on first
+  run, so there is no separate install step :
 ```
-python3 -m venv .venv
-source .venv/bin/activate
-pip3 install -r requirements.txt
-```
-- Run the script :
-```
-./hass_backup_decrypt.py -i ./input -o ./output
+uv run hass_backup_decrypt.py -i ./input -o ./output
 ```
 
 ### Using docker image
@@ -75,7 +77,7 @@ docker run --rm -ti \
 ## Help and Options
 The script has several options available that you can review using 
 ```
-./hass_backup_decrypt.py --help
+uv run hass_backup_decrypt.py --help
 # or
 docker run --rm -ti acaranta/home_assistant_backup_decryption --help
 
@@ -95,6 +97,25 @@ options:
 ```
 
 NB : if the emergency kit is not found, and if you do not provide the encryption key as an option, you will be prompted to manually input it.
+
+## Troubleshooting
+
+- `SecureTarFile.__init__() got an unexpected keyword argument 'key'`
+- `TarFile.extractall() got an unexpected keyword argument 'filter'`
+
+Both were caused by running against dependency versions the script did not support
+(see [issue #1](https://github.com/acaranta/home_assistant_backup_decryption/issues/1)),
+and are fixed since version 0.2.0. The script now adapts to whichever
+[securetar](https://pypi.org/project/securetar/) release is installed (the `key` argument
+was renamed to `password` in securetar 2025.12.0), and only uses `extractall(filter=...)` on
+Python versions that support it (3.12+, or the 3.11.4 / 3.10.12 backports — Debian 12 ships
+Python 3.11.2, which does not). If you hit either message, update to the latest version.
+
+## Development
+Run the test suite with :
+```
+uv run pytest
+```
 
 ## References :
 The script idea comes from the script developped by [cogneato](https://github.com/cogneato/ha-decrypt-backup-tool) (idea and some part of the code).

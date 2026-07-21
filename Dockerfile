@@ -1,21 +1,29 @@
-FROM ubuntu:noble
+# --- Build stage: resolve the locked dependencies into a self-contained virtualenv ---
+FROM python:3.13-slim AS builder
 
-# Update and install system dependencies
-RUN apt-get update && \
-    apt-get install -y python3-pip python3-dev 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copy the requirements file
-COPY requirements.txt /tmp
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/app/.venv
 
-# Install python packages
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt --break-system-packages
-
-RUN mkdir /input /output /app
-# Set working directory
 WORKDIR /app
 
-# Copy the Python application code
-COPY *.py .
+# Only the manifests, so this layer stays cached until dependencies actually change
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
 
-# Set the entrypoint command
-ENTRYPOINT ["python3", "/app/hass_backup_decrypt.py"]
+
+# --- Runtime stage: just the interpreter, the virtualenv and the script ---
+FROM python:3.13-slim
+
+COPY --from=builder /app/.venv /app/.venv
+
+WORKDIR /app
+COPY hass_backup_decrypt.py ./
+
+RUN mkdir -p /input /output
+
+# No USER directive on purpose: the documented run passes --user=$(id -u):$(id -g) so the
+# decrypted files end up owned by the invoking user rather than by root.
+ENTRYPOINT ["/app/.venv/bin/python", "/app/hass_backup_decrypt.py"]

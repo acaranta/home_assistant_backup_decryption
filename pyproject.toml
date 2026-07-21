@@ -1,0 +1,30 @@
+[project]
+name = "home-assistant-backup-decryption"
+version = "0.2.0"
+description = "Decrypt and extract Home Assistant encrypted backups"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "cryptography",
+    "securetar>=2025.12.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+# Restrict collection: input/ and output/ hold real backup data, not test code.
+testpaths = ["tests"]
+
+[tool.uv]
+# Single-file script, nothing to build or install: uv only manages the environment.
+package = false
+
+# Resolve against public PyPI so uv.lock is reproducible for everyone, regardless of
+# any private mirror configured in the user's global uv/pip settings.
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true
