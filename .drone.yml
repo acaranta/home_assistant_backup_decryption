@@ -1,0 +1,10 @@
+---
+kind: template
+load: docker-build-multiarch.yaml
+data:
+  dockerfiledir: .
+  hubimagename: home_assistant_backup_decryption
+  imagetag: latest  
+  branches: ['master', 'main']
+  repotype: hub
+  buildarch: linux/arm64/v8,linux/amd64
